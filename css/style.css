@@ -1,0 +1,116 @@
+body {
+    background: linear-gradient(217deg, rgba(255, 0, 0, .8), rgba(255, 0, 0, 0) 70.71%),
+        linear-gradient(127deg, rgba(0, 255, 0, .8), rgba(0, 255, 0, 0) 70.71%),
+        linear-gradient(336deg, rgba(0, 0, 255, .8), rgba(0, 0, 255, 0) 70.71%);
+
+    font-family: 'Courier New', Courier, monospace;
+
+    text-align: center;
+    box-sizing: border-box;
+}
+
+h1 {
+    /* text-align: center; */
+    font-size: 40px;
+    font-variant: all-small-caps;
+}
+
+.box {
+    width: 400px;
+    height: 500px;
+    border: solid black;
+    margin: auto;
+    padding: 10px;
+}
+
+.flag-decount {
+    border: dotted;
+    border-radius: 5px;
+    border-width: 2.5px;
+    padding: 2px;
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: calc();
+}
+
+.btn-restart {
+    background-color: rgba(140, 70, 179, 0.127);
+    border-color: rgb(152, 55, 208);
+    font-size: 20px;
+    line-height: 30px;
+    margin-left: 60px;
+    margin-right: 60px;
+}
+
+.timer {
+    border: dotted;
+    border-radius: 5px;
+    padding: 2px;
+    font-size: 20px;
+    border-width: 2.5px;
+    font-weight: bold;
+
+}
+
+.levels {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.btn-basic,
+.btn-hard,
+.btn-extreme {
+    margin-left: 20px;
+    font-family: 'Courier New';
+    letter-spacing: 1px;
+    font-weight: bold;
+    font-size: 15px;
+    font-variant: all-small-caps;
+    background-color: transparent;
+    border: solid thin black;
+}
+
+.selected {
+    border-style: solid;
+    border-width: 3px;
+    border-color: blueviolet;
+}
+
+table {
+    border: solid;
+    margin: auto;
+    margin-top: 20px;
+}
+
+td {
+    height: 25px;
+    width: 20px;
+    /* border: solid; */
+    text-align: center;
+    background-color: black;
+    cursor: pointer;
+}
+
+td:hover {
+    background-color: rgb(176, 92, 185);
+}
+
+td.isShown,
+td.isMarked {
+    background: #08080885;
+    -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+    -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
+    box-shadow: inset 0px 0px 5px #c1c1c1;
+    outline: none;
+
+    border-style: none;
+    font-weight: bold;
+
+    color: black;
+    transition: box-shadow 1s;
+    cursor: default;
+}
+
+td.isMarked {
+    background-color: rgba(0, 0, 0, 0.733);
+}
