@@ -19,44 +19,40 @@ var gBoard
 var timerIntervalId
 
 function onInit() {
-    console.log('hi from onInit')
+    // console.log('hi from onInit')
     // INITIALIZE
     document.querySelector('.btn-restart').innerHTML = '😃'
-    
+    document.querySelector('.timer').innerHTML = '000'
+
     gGame.shownCount = 0
-    
-    document.querySelector('.btn-basic').classList.add('selected')
-    
     gGame.markedCount = 0
-
     showCount()
-    
     gGame.secsPassed = 0
-    // BUILD MODEL
 
+    document.querySelector('.btn-basic').classList.add('selected')
+
+    // BUILD MODEL
     gBoard = buildBoard()
-    // console.log('gBoard after build:', gBoard)
-    // console.log('getClassName(gBoard[0][0]):', getClassName(gBoard[0][0]))
 
     // RENDER TO DOM
     renderBoard(gBoard)
 
-    if (gGame.isOn) {
-        timer()
-        addMines(gBoard)
+}
 
-        setMinesNegsCount(gBoard)
-        renderBoard(gBoard)
-    }
+function startGame() {
+    // console.log('hi from startgame');
+    timer()
+    addMines(gBoard)
+
+    setMinesNegsCount(gBoard)
+    renderBoard(gBoard)
 }
 
 function showCount() {
     var count = (gLevel.MINES - gGame.markedCount < 0) ? 0 : gLevel.MINES - gGame.markedCount
-    
+
     var elCount = document.querySelector('.flag-decount')
     elCount.innerText = `000${count}`.slice(-3)
-    
-    console.log(count)
 }
 
 function buildBoard() {
@@ -124,9 +120,10 @@ function renderBoard(board) {
             const currCell = board[i][j]
             // if (i === 2 && j === 1) currCell.isMarked = true
             var strClass = getClassName(currCell)
-
-            strHTML += `\t<td class="cell ${strClass}" onmouseup="onCellClicked(event, this, ${i}, ${j})"
-                 oncontextmenu="event.preventDefault();">`
+            //onmouseup="onCellClicked(event, this, ${i}, ${j})"
+            // oncontextmenu="event.preventDefault();" 
+            strHTML += `\t<td class="cell ${strClass}" onclick="onCellClicked(this, ${i}, ${j})"
+                 oncontextmenu="onCellMarked(this)">`
 
             if (currCell.isMarked) strHTML += `🏳️`
             else if (currCell.isShown) {
@@ -156,12 +153,14 @@ function getClassName(cellObj) {
 }
 
 function setMinesNegsCount(board) {
-
+    // console.log('hi setminenegs');
     for (var i = 0; i < board.length; i++) {
 
         for (var j = 0; j < board.length; j++) {
             if (board[i][j].isMine) continue
-            board[i][j].minesAroundCount = countMinesNegs(board, i, j)
+            var negsCount = countMinesNegs(board, i, j)
+
+            board[i][j].minesAroundCount = (negsCount === 0) ? '' : negsCount
         }
     }
     console.log(board)
@@ -175,41 +174,62 @@ function countMinesNegs(board, celli, cellj) {
             if (j < 0 || j >= board[i].length) continue
             if (i === celli && j === cellj) continue
 
-            
+            if (board[i][j].isMine) countNegs++
         }
     }
+    return countNegs
 }
 
 
-function onCellClicked(ev, elCell, i, j) {
+function onCellClicked(elCell, i, j) {
 
-    if (!gGame.isOn) gGame.isOn = true
+    if (!gGame.isOn) {
+        gGame.isOn = true
+        startGame()
+    }
 
     const currCell = gBoard[i][j]
 
-    if (ev.button === 0) {
-        if (currCell.isMine && !currCell.isMarked) {
-            gameOver('lost')
-            return
-        }
+    if (elCell.classList.contains('isMarked') || currCell.isShown) return
+    if (elCell.classList.contains('isMarked')) currCell.isMarked = true
 
-        if (currCell.isMarked || currCell.isShown) return
-
-        if (!currCell.IsShown) {
-            currCell.isShown = true
-            gGame.shownCount++
-        }
-
-    } else if (ev.button === 2) {
-        if (!(currCell.isMarked || currCell.isShown)) {
-            currCell.isMarked = true
-            elCell.innerHTML = `🏳️`
-            gGame.markedCount++
-        }
+    if (currCell.isMine && !currCell.isMarked) {
+        gameOver('lost')
+        return
     }
+
+    if (!currCell.IsShown) {
+        currCell.isShown = true
+        gGame.shownCount++
+    }
+
+    // } else if (ev.button === 2) {
+    // if (!(currCell.isMarked || currCell.isShown)) {
+    //     currCell.isMarked = true
+    //     elCell.innerHTML = `🏳️`
+    //     gGame.markedCount++
+    // }
+
     renderBoard(gBoard)
     checkGameOver()
 }
+
+function onCellMarked(elCell) { // RIGHT CLICK ON CELL
+    // console.log('hi from cellmarked');
+    // DON'T OPEN CONTXT MENU
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    if (elCell.classList.contains('isMarked')) {
+        gGame.markedCount--
+    } else {
+        if (gGame.markedCount >= gLevel.MINES) return
+        gGame.markedCount++
+    }
+
+    elCell.classList.toggle('isMarked')
+    showCount()
+}
+
 
 function checkGameOver() {
     if (gGame.markedCount === gLevel.MINES &&
@@ -225,8 +245,12 @@ function gameOver(status) {
         // SHOW ALL THE CELLS
         for (var i = 0; i < gBoard.length; i++) {
             for (var j = 0; j < gBoard[0].length; j++) {
-                gBoard[i][j].isShown = true // UPDATE MODEL
-                renderBoard(gBoard) //UPDATE DOM
+                // UPDATE MODEL
+                gBoard[i][j].isShown = true
+                gBoard[i][j].isMarked = false
+
+                //UPDATE DOM
+                renderBoard(gBoard)
             }
         }
         // CHANGE SMILEY FACE TO DISAPPOINTED
@@ -236,4 +260,36 @@ function gameOver(status) {
     }
     if (status === 'won') alert('YOU WON!')
 
+}
+
+function changeLevel(elBtn) {
+    if (gGame.isOn) return
+
+    var level = elBtn.classList[0]
+
+    switch (level) {
+        case `btn-basic`:
+            gLevel.SIZE = 4
+            gLevel.MINES = 2
+            break;
+        case `btn-hard`:
+            gLevel.SIZE = 8
+            gLevel.MINES = 4
+            break;
+        case `btn-extreme`:
+            gLevel.SIZE = 16
+            gLevel.MINES = 8
+            break;
+        default:
+            break;
+    }
+    renderSelected()
+
+    onInit()
+}
+
+function renderSelected() {
+    document.querySelector('.btn-basic').classList.toggle('selected')
+    document.querySelector('.btn-hard').classList.toggle('selected')
+    document.querySelector('.btn-extreme').classList.toggle('selected')
 }
