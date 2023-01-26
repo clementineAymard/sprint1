@@ -15,8 +15,8 @@ const gLevel = {
 // console.log('gLevel', gLevel)
 
 var gBoard
-
 var timerIntervalId
+var gLives
 
 function onInit() {
     // console.log('hi from onInit')
@@ -24,7 +24,8 @@ function onInit() {
     document.querySelector('.btn-restart').innerHTML = '😃'
     clearInterval(timerIntervalId)
     document.querySelector('.timer').innerHTML = '000'
-
+    gLives = 3
+    document.querySelector('.lives').innerHTML = '♥️♥️♥️'
     gGame.isOn = false
     gGame.shownCount = 0
     gGame.markedCount = 0
@@ -89,32 +90,6 @@ function createCellObj(minesarcnt = '', isshown = false, ismine = false, ismarke
     return cell
 }
 
-function timer() {
-    var startTime = Date.now()
-
-    timerIntervalId = setInterval(() => {
-        // CALC SECONDS PASSED
-        var elapsedTime = Date.now() - startTime
-        gGame.secsPassed = elapsedTime / 1000
-        // RENDER IN DOM
-        document.querySelector('.timer').innerText =
-            ('00' + (elapsedTime / 1000).toFixed(0)).slice(-3)
-    }, 37)
-}
-
-function addMines(board) {
-    for (var i = 1; i <= gLevel.MINES; i++) {
-        var celli = getRandomInt(0, gLevel.SIZE)
-        var cellj = getRandomInt(0, gLevel.SIZE)
-        if (board[celli][cellj].isMine ||
-            board[celli][cellj].isShown) {
-            i--
-            continue
-        }
-        board[celli][cellj].isMine = true
-    }
-}
-
 function renderBoard(board) {
     var strHTML = ''
 
@@ -154,6 +129,32 @@ function getClassName(cellObj) {
     return cellClass
 }
 
+function timer() {
+    var startTime = Date.now()
+
+    timerIntervalId = setInterval(() => {
+        // CALC SECONDS PASSED
+        var elapsedTime = Date.now() - startTime
+        gGame.secsPassed = elapsedTime / 1000
+        // RENDER IN DOM
+        document.querySelector('.timer').innerText =
+            ('00' + (elapsedTime / 1000).toFixed(0)).slice(-3)
+    }, 37)
+}
+
+function addMines(board) {
+    for (var i = 1; i <= gLevel.MINES; i++) {
+        var celli = getRandomInt(0, gLevel.SIZE)
+        var cellj = getRandomInt(0, gLevel.SIZE)
+        if (board[celli][cellj].isMine ||
+            board[celli][cellj].isShown) {
+            i--
+            continue
+        }
+        board[celli][cellj].isMine = true
+    }
+}
+
 function setMinesNegsCount(board) {
     // console.log('hi setminenegs');
     for (var i = 0; i < board.length; i++) {
@@ -183,10 +184,9 @@ function countMinesNegs(board, celli, cellj) {
     return countNegs
 }
 
-
 function onCellClicked(elCell, i, j) { // LEFT CLICK ON CELL
     const currCell = gBoard[i][j]
-
+    // FIRST CELL IS NEVER A MINE:
     if (!gGame.isOn) {
         gGame.isOn = true
         currCell.isShown = true
@@ -195,16 +195,25 @@ function onCellClicked(elCell, i, j) { // LEFT CLICK ON CELL
         startGame()
     }
 
-
+    // CANT CLICK ON A FLAG OR ON A SHOWN CELL
     if (elCell.classList.contains('isMarked') || currCell.isShown) return
-    if (elCell.classList.contains('isMarked')) currCell.isMarked = true
+    // if (elCell.classList.contains('isMarked')) currCell.isMarked = true
 
-    if (currCell.isMine && !currCell.isMarked) {
-        gameOver('lost')
-        return
+    if (currCell.isMine && !currCell.isMarked) { // IF U CLICKED ON UNMARKED MINE 
+        if (gLives > 0) { // IF REMAIN LIVES
+            gLives--
+            debugger
+            currCell.isShown = true
+            gGame.markedCount++
+            showCount()
+            renderLives(gLives)
+        } else { 
+            gameOver('lost')
+        }
+        // return
     }
 
-    if (!currCell.IsShown) {
+    if (!currCell.isShown) {
         currCell.isShown = true
         gGame.shownCount++
         if (currCell.minesAroundCount === '') expandShown(i, j)
@@ -220,7 +229,7 @@ function expandShown(celli, cellj) {
     // SHOW NEIGHBORS
     for (var i = celli - 1; i <= celli + 1; i++) {
         if (i < 0 || i >= gBoard.length) continue
-
+        
         for (var j = cellj - 1; j <= cellj + 1; j++) {
             if (j < 0 || j >= gBoard[i].length) continue
             if (i === celli && j === cellj) continue
@@ -231,11 +240,24 @@ function expandShown(celli, cellj) {
     }
 }
 
+function renderLives(gLives){
+    var elLives = document.querySelector('.lives')
+            var strHTML = ''
+            for (var i = 0; i < gLives; i++) {
+                strHTML += '♥️'
+            }
+            for (var i = 0; i < 3-gLives; i++) {
+                strHTML += '_'
+            }
+            elLives.innerHTML = strHTML
+}
 
 function onCellMarked(elCell, i, j) { // RIGHT CLICK ON CELL
     // console.log('hi from cellmarked');
     // DON'T OPEN CONTXT MENU
     document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // MARK OR UNMARK CELLS
     var currCell = gBoard[i][j]
     if (elCell.classList.contains('isMarked')) {
         currCell.isMarked = false
@@ -254,7 +276,6 @@ function onCellMarked(elCell, i, j) { // RIGHT CLICK ON CELL
     checkGameOver()
 
 }
-
 
 function checkGameOver() {
     if (gGame.markedCount === gLevel.MINES &&
@@ -280,16 +301,22 @@ function gameOver(status) {
         }
     }
 
+    renderResults(status)
+    
+}
+function renderResults(status){
     var elBtnRestart = document.querySelector('.btn-restart')
     elBtnRestart.innerHTML = (status === 'lost') ? `😞` : `🥳`
-    if (status === 'won') {
-        document.querySelector('.victory-box').style.display = 'block'
-        // document.querySelector('.victory-box').classList.add('won')
-        setTimeout(() => {
-            document.querySelector('.victory-box').style.display = 'none'
-            // document.querySelector('.victory-box').classList.remove('won')
-        }, 3000)
-    }
+    
+    var elVictBox = document.querySelector('.victory-box')
+    elVictBox.innerHTML = (status === 'won') ? 'Bravo! <br/> You won!' : 'Sorry... <br/> You lost.'
+    
+    document.querySelector('.victory-box').style.display = 'block'
+    // document.querySelector('.victory-box').classList.add('won')
+    setTimeout(() => {
+        document.querySelector('.victory-box').style.display = 'none'
+        // document.querySelector('.victory-box').classList.remove('won')
+    }, 3000)
 }
 
 function changeLevel(elBtn) {
@@ -297,33 +324,37 @@ function changeLevel(elBtn) {
 
     var levelClass = elBtn.classList[0]
 
+    const cListBtnB = document.querySelector('.btn-basic').classList
+    const cListBtnH = document.querySelector('.btn-hard').classList
+    const cListBtnE = document.querySelector('.btn-extreme').classList
+    const s = 'selected'
+
     switch (levelClass) {
         case `btn-basic`:
             gLevel.SIZE = 4
             gLevel.MINES = 2
 
-            document.querySelector('.btn-basic').classList.add('selected')
-            document.querySelector('.btn-hard').classList.remove('selected')
-            document.querySelector('.btn-extreme').classList.remove('selected')
-
+            cListBtnB.add(s)
+            cListBtnH.remove(s)
+            cListBtnE.remove(s)
 
             break;
         case `btn-hard`:
             gLevel.SIZE = 8
-            gLevel.MINES = 4
+            gLevel.MINES = 14
 
-            document.querySelector('.btn-basic').classList.remove('selected')
-            document.querySelector('.btn-hard').classList.add('selected')
-            document.querySelector('.btn-extreme').classList.remove('selected')
+            cListBtnB.remove(s)
+            cListBtnH.add(s)
+            cListBtnE.remove(s)
 
             break;
         case `btn-extreme`:
-            gLevel.SIZE = 16
-            gLevel.MINES = 8
+            gLevel.SIZE = 12
+            gLevel.MINES = 32
 
-            document.querySelector('.btn-basic').classList.remove('selected')
-            document.querySelector('.btn-hard').classList.remove('selected')
-            document.querySelector('.btn-extreme').classList.add('selected')
+            cListBtnB.remove(s)
+            cListBtnH.remove(s)
+            cListBtnE.add(s)
 
             break;
         default:
