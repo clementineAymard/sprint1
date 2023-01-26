@@ -3,24 +3,28 @@ body {
         linear-gradient(127deg, rgba(0, 255, 0, .8), rgba(0, 255, 0, 0) 70.71%),
         linear-gradient(336deg, rgba(0, 0, 255, .8), rgba(0, 0, 255, 0) 70.71%);
 
+    
     font-family: 'Courier New', Courier, monospace;
-
     text-align: center;
+
     box-sizing: border-box;
 }
 
 h1 {
-    /* text-align: center; */
     font-size: 40px;
     font-variant: all-small-caps;
+    margin-top: 0px;
+    margin-bottom: 10px;
 }
 
 .box {
+    top:0px;
     width: 400px;
     height: 500px;
     border: solid black;
     margin: auto;
     padding: 10px;
+    background-color: rgba(255, 255, 255, 0.178);
 }
 
 .flag-decount {
@@ -34,12 +38,16 @@ h1 {
 }
 
 .btn-restart {
-    background-color: rgba(140, 70, 179, 0.127);
+    background-color: rgba(158, 86, 196, 0.271);
     border-color: rgb(152, 55, 208);
     font-size: 20px;
     line-height: 30px;
     margin-left: 60px;
     margin-right: 60px;
+}
+
+[class^="btn"]{
+    cursor: pointer;
 }
 
 .timer {
@@ -70,6 +78,14 @@ h1 {
     border: solid thin black;
 }
 
+/* .btn-basic:focus,
+.btn-hard:focus,
+.btn-extreme:focus {
+    border-style: solid;
+    border-width: 3px;
+    border-color: blueviolet;
+} */
+
 .selected {
     border-style: solid;
     border-width: 3px;
@@ -83,9 +99,8 @@ table {
 }
 
 td {
-    height: 25px;
+    height: 20px;
     width: 20px;
-    /* border: solid; */
     text-align: center;
     background-color: black;
     cursor: pointer;
@@ -97,11 +112,12 @@ td:hover {
 
 td.isShown,
 td.isMarked {
-    background: #08080885;
-    -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
+    background: transparent;
+    /* radial-gradient(circle, #30303085, transparent); */
+    /* -webkit-box-shadow: inset 0px 0px 5px #c1c1c1;
     -moz-box-shadow: inset 0px 0px 5px #c1c1c1;
     box-shadow: inset 0px 0px 5px #c1c1c1;
-    outline: none;
+    outline: none; */
 
     border-style: none;
     font-weight: bold;
@@ -113,4 +129,33 @@ td.isMarked {
 
 td.isMarked {
     background-color: rgba(0, 0, 0, 0.733);
+}
+.won {
+    display: block;
+}
+
+.victory-box{
+    width:250px ;
+    height: 120px;
+    box-sizing: border-box;
+    padding: 20px;
+    position: absolute;
+    z-index: 1;
+    top: 100px;
+    left: calc(50% - 125px);
+    background-color: whitesmoke;
+    border: solid 5px;
+    
+    text-align: center;
+    font-size: 30px;
+    font-family: Georgia;
+    letter-spacing: 5px;
+    display: none;
+
+}
+
+footer{
+    margin-top: 20px;
+    font-family: Georgia ;
+    /* Brush Script MT;  */
 }
