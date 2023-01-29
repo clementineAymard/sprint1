@@ -34,17 +34,17 @@ h1 {
     border-radius: 5px;
     border-width: 2.5px;
     padding: 2px;
-    
+
     font-size: 20px;
     font-weight: bold;
 }
 
 .lives {
     padding: 2px;
-    font-size: 20px;
+    font-size: 30px;
     left: 150px;
     top: 80px;
-    margin-left: 30px;
+    margin-left: 20px;
 }
 
 .btn-restart {
@@ -60,6 +60,24 @@ h1 {
     cursor: pointer;
 }
 
+.hints {
+    margin-left: 5px;
+}
+
+[class^="hint-"] {
+    height: 30px;
+    width: 30px;
+    margin: 1px;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0px;
+    background-color: rgba(113, 112, 112, 0.531);
+    border-width: 0px;
+}
+.viewed{
+    background-color: rgb(255, 255, 117);
+}
+
 .timer {
     border: dotted;
     border-radius: 5px;
@@ -67,7 +85,7 @@ h1 {
     font-size: 20px;
     border-width: 2.5px;
     font-weight: bold;
-    margin-left:125px;
+    margin-left: 5px;
 
 }
 
